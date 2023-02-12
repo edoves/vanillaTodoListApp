@@ -1,6 +1,6 @@
 # Vanilla JS Todo List WebAPP
 
-This project is to just to practice Javacript and explore more about it
+This project is to practice Javacript and explore more about it
 
 ### Version
 
