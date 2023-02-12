@@ -64,6 +64,26 @@ ul {
   animation: slideInDate 0.4s 0.1s both;
 }
 
+.alert {
+  padding: 0.5rem 2rem;
+  display: block;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  width: 46%;
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.alert-success {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+
 @keyframes slideInDate {
   0% {
     transform: translateX(-249px);
@@ -81,13 +101,14 @@ ul {
   box-shadow: 0 1px 10px #777;
   background: #fff;
   transform: translateY(-40%);
+  display: flex;
+  align-items: center;
 }
 
 .todo__input input {
-  width: calc(100% - 60px);
+  width: 100%;
   padding: 10px;
   outline: none;
-  display: inline-block;
 }
 
 .todo__input input::placeholder {
@@ -96,14 +117,17 @@ ul {
 
 .todo__input .todo__btn {
   position: absolute;
-  display: inline-block;
+  right: 1.6rem;
+}
+
+.todo__btn button {
   border: none;
-  padding: 12px;
   background-color: cadetblue;
   text-transform: uppercase;
   outline: none;
   cursor: pointer;
   color: #fff;
+  padding: 0.5rem;
 }
 
 .todo__list li {
