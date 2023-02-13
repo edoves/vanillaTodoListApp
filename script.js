@@ -68,6 +68,8 @@ function deleteToDoItem(item) {
   }
 
   item = item.closest('li').firstChild.textContent
+
+  deleteToLocalStorage(item)
 }
 
 function doneToDoItem(item) {
@@ -96,9 +98,25 @@ function loadTodosFromStorage() {
   })
 }
 
+// add todo into the localstorage
 function addToLocalStorage(todo) {
   let todos = storeToLocalStorage()
   todos.push(todo)
 
   localStorage.setItem('todos', JSON.stringify(todos))
+}
+
+// delete todo from localstorage
+function deleteToLocalStorage(item) {
+  let todos = storeToLocalStorage()
+
+  // todos.forEach((todo, idx) => {
+  //   if (todo === item) {
+  //     todos.splice(idx, 1)
+  //   }
+  // })
+
+  const todoLeft = todos.filter((todo) => item !== todo)
+
+  localStorage.setItem('todos', JSON.stringify(todoLeft))
 }
