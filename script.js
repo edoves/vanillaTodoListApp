@@ -6,6 +6,8 @@ const fragment = document.createDocumentFragment()
 
 eventListener()
 function eventListener() {
+  document.addEventListener('DOMContentLoaded', loadTodosFromStorage)
+
   form.addEventListener('submit', submitTodos)
   todoList.addEventListener('click', listOptions)
 }
@@ -19,6 +21,7 @@ function submitTodos(e) {
   } else {
     uiDisplayTodoItem(todo)
     uiConfirmMessage('Todos added', 'alert alert-success')
+
     this.reset()
   }
 }
@@ -49,10 +52,11 @@ function uiDisplayTodoItem(todo) {
 }
 
 function listOptions(e) {
-  deleteToDoIten(e.target)
+  deleteToDoItem(e.target)
+  doneToDoItem(e.target)
 }
 
-function deleteToDoIten(item) {
+function deleteToDoItem(item) {
   if (item.classList.contains('fa-trash') || item.id === 'trash') {
     const todoItemEl = item.closest('li')
     todoItemEl.classList.remove('bounceIn')
@@ -61,4 +65,31 @@ function deleteToDoIten(item) {
       todoItemEl.remove()
     }, 1000)
   }
+
+  item = item.closest('li').firstChild.textContent
+}
+
+function doneToDoItem(item) {
+  if (item.classList.contains('fa-check') || item.id === 'check') {
+    const todoItemEl = item.closest('li')
+    li.style.backgroundColor = 'red'
+  }
+}
+
+function storeToLocalStorage() {
+  let todos
+  let storage = localStorage.getItem('todos')
+  if (storage === null) {
+    todos = []
+  } else {
+    todos = JSON.parse(storage)
+  }
+  return todos
+}
+
+function loadTodosFromStorage() {
+  let todos = storeToLocalStorage()
+  todos.forEach((todo) => {
+    uiDisplayTodoItem(todo)
+  })
 }
