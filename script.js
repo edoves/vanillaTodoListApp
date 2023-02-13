@@ -20,6 +20,7 @@ function submitTodos(e) {
     uiConfirmMessage('The field is empty', 'alert alert-danger')
   } else {
     uiDisplayTodoItem(todo)
+    addToLocalStorage(todo)
     uiConfirmMessage('Todos added', 'alert alert-success')
 
     this.reset()
@@ -86,4 +87,18 @@ function storeToLocalStorage() {
     todos = JSON.parse(storage)
   }
   return todos
+}
+
+function loadTodosFromStorage() {
+  let todos = storeToLocalStorage()
+  todos.forEach((todo) => {
+    uiDisplayTodoItem(todo)
+  })
+}
+
+function addToLocalStorage(todo) {
+  let todos = storeToLocalStorage()
+  todos.push(todo)
+
+  localStorage.setItem('todos', JSON.stringify(todos))
 }
