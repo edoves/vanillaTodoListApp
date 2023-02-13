@@ -75,21 +75,3 @@ function doneToDoItem(item) {
     li.style.backgroundColor = 'red'
   }
 }
-
-function storeToLocalStorage() {
-  let todos
-  let storage = localStorage.getItem('todos')
-  if (storage === null) {
-    todos = []
-  } else {
-    todos = JSON.parse(storage)
-  }
-  return todos
-}
-
-function loadTodosFromStorage() {
-  let todos = storeToLocalStorage()
-  todos.forEach((todo) => {
-    uiDisplayTodoItem(todo)
-  })
-}
