@@ -75,3 +75,15 @@ function doneToDoItem(item) {
     li.style.backgroundColor = 'red'
   }
 }
+
+// insert data to local storage
+function storeToLocalStorage() {
+  let todos
+  let storage = localStorage.getItem('todos')
+  if (storage === null) {
+    todos = []
+  } else {
+    todos = JSON.parse(storage)
+  }
+  return todos
+}
