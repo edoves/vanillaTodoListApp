@@ -151,6 +151,11 @@ ul {
   transition: margin-right 0.3s ease;
 }
 
+.todo__list .checked {
+  pointer-events: none;
+  background-color: rgba(101, 94, 117, 0.28);
+}
+
 .todo__list li:hover .options {
   margin-right: 0;
 }
