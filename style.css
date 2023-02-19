@@ -129,8 +129,9 @@ ul {
   color: #fff;
   padding: 0.5rem;
 }
-
+/* Todo list items */
 .todo__list li {
+  position: relative;
   display: flex;
   align-items: center;
   background-color: #655e75;
@@ -152,9 +153,25 @@ ul {
 }
 
 .todo__list .checked {
-  pointer-events: none;
+  /* pointer-events: none; */
   background-color: rgba(101, 94, 117, 0.28);
 }
+
+/* .todo__list .checked:hover .doneOptions {
+  position: absolute;
+  pointer-events: all;
+
+  background-color: red;
+} */
+/* 
+.todo__list .doneOptions {
+  margin-right: -115px;
+}
+
+.todo__list .checked:hover .doneOptions {
+  pointer-events: fill;
+  margin-right: 0;
+} */
 
 .todo__list li:hover .options {
   margin-right: 0;

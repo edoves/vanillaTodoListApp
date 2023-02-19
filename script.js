@@ -45,13 +45,22 @@ function uiConfirmMessage(msg, cls) {
 function uiDisplayTodoItem(todo, status) {
   const li = document.createElement('li')
   li.classList.add('bounceIn')
-  li.classList = status ? 'checked' : ''
-  li.innerHTML = `<span class="text">${todo}</span>
+
+  if (status) {
+    li.classList = 'checked'
+    li.innerHTML = `<span class="text">${todo}</span>
   <div class="options">
-    <span id="check"><i class="fa fa-check"></i></span>
-    <span id="edit"><i class="fa fa-edit"></i></span>
+    <span id="undo"><i class="fas fa-undo"></i></span>
     <span id="trash"><i class="fa fa-trash"></i></span>
   </div>`
+  } else {
+    li.innerHTML = `<span class="text">${todo}</span>
+    <div class="options">
+      <span id="check"><i class="fa fa-check"></i></span>
+      <span id="edit"><i class="fa fa-edit"></i></span>
+      <span id="trash"><i class="fa fa-trash"></i></span>
+    </div>`
+  }
   fragment.appendChild(li)
   todoList.appendChild(fragment)
 }
@@ -63,6 +72,8 @@ function listOptions(e) {
     uiDeleteToDoItem(item)
   } else if (item.classList.contains('fa-check') || item.id === 'check') {
     uiDoneToDoItem(item)
+  } else if (item.classList.contains('fa-undo') || item.id === 'undo') {
+    uiUndoTodoItem(item)
   }
 }
 
@@ -76,7 +87,15 @@ function uiDeleteToDoItem(item) {
 
   item = item.closest('li').firstChild.textContent
 
-  deleteToLocalStorage(item)
+  // todos.forEach((todo, idx) => {
+  //   if (todo === item) {
+  //     todos.splice(idx, 1)
+  //   }
+  // })
+  // delete from localstorage
+  todos = todos.filter(({ todo }) => item !== todo)
+
+  localStorage.setItem('todos', JSON.stringify(todos))
 }
 
 function uiDoneToDoItem(item) {
@@ -86,7 +105,14 @@ function uiDoneToDoItem(item) {
   doneToDoItemToLocalStorage(item)
 }
 
-// insert data to local storage
+function uiUndoTodoItem(item) {
+  const todoItemEl = item.closest('li')
+  todoItemEl.classList.remove('checked')
+  item = item.closest('li').firstChild.textContent
+  undoToDoItemToLocalStorage(item)
+}
+
+// setup date to insert to localstorage
 function storeToLocalStorage() {
   let todos
   let storage = localStorage.getItem('todos')
@@ -98,6 +124,7 @@ function storeToLocalStorage() {
   return todos
 }
 
+// Load data from localstorage when the page loads
 function loadTodosFromStorage() {
   todos.forEach(({ todo, status }) => {
     uiDisplayTodoItem(todo, status)
@@ -111,24 +138,44 @@ function addToLocalStorage(todo) {
   localStorage.setItem('todos', JSON.stringify(todos))
 }
 
-// delete todo from localstorage
-function deleteToLocalStorage(item) {
-  // todos.forEach((todo, idx) => {
-  //   if (todo === item) {
-  //     todos.splice(idx, 1)
-  //   }
-  // })
-
-  const todoLeft = todos.filter(({ todo }) => item !== todo)
-
-  localStorage.setItem('todos', JSON.stringify(todoLeft))
-}
-
+//
 function doneToDoItemToLocalStorage(item) {
+  // turn status to true
   todos.forEach((todo) => {
     if (todo.todo === item) {
       todo.status = true
     }
   })
+
+  rerenderData()
+}
+
+function undoToDoItemToLocalStorage(item) {
+  // turn status to false
+  todos.forEach((todo) => {
+    if (todo.todo === item) {
+      todo.status = false
+    }
+  })
+
+  rerenderData()
+}
+
+function rerenderData() {
+  // delete every first element in UL element
+  while (todoList.firstChild) {
+    todoList.removeChild(todoList.firstChild)
+  }
+
+  // rerender UI
+  loadTodosFromStorage()
+
+  // remove bounceIn class in every li
+  let chectLi = Array.from(todoList.children)
+  chectLi.forEach((li) => {
+    console.log(li.classList.remove('bounceIn'))
+  })
+
+  // update status to true in local storage
   localStorage.setItem('todos', JSON.stringify(todos))
 }
