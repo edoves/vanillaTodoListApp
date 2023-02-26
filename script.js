@@ -1,10 +1,9 @@
-let form = document.getElementById('form')
-let todoInput = document.getElementById('todoInput')
-let todoList = document.querySelector('.todo__list')
-let todo__header = document.querySelector('.todo__header')
+const todoForm = document.getElementById('form')
+const todoInput = document.getElementById('todoInput')
+const todoList = document.querySelector('.todo__list')
+
 const fragment = document.createDocumentFragment()
 
-// array of todos from localStorage
 let todos = storeToLocalStorage()
 
 eventListener()
@@ -17,20 +16,168 @@ function eventListener() {
 
 function submitTodos(e) {
   e.preventDefault()
-  let todo = todoInput.value
+  const item = todoInput.value
 
-  if (!todo) {
-    uiConfirmMessage('The field is empty', 'alert alert-danger')
+  if (!item) {
+    uiRenderMessage('The input field is empty', 'alert alert-danger')
   } else {
-    uiDisplayTodoItem(todo)
-    addToLocalStorage(todo)
-    uiConfirmMessage('Todos added', 'alert alert-success')
+    const todo = {
+      id: randomId(),
+      item,
+      status: false,
+    }
+    todos.push(todo)
 
-    this.reset()
+    uiRenderMessage('Todos added', 'alert alert-success')
+
+    if (todos.length === 1) todoList.innerHTML = ''
+
+    uiRenderTodos(todo)
+
+    localStorage.setItem('todos', JSON.stringify(todos))
   }
+
+  this.reset()
 }
 
-function uiConfirmMessage(msg, cls) {
+function uiRenderTodos(todo) {
+  const htmlTagLi = document.createElement('li')
+  // htmlTagLi.classList = todo.status ? 'checked' : ''
+  htmlTagLi.setAttribute('data-id', todo.id)
+  htmlTagLi.classList.add('bounceIn')
+
+  if (todo.status) {
+    htmlTagLi.classList = 'checked'
+    htmlTagLi.innerHTML = `
+    <div class="list">      
+        <input type="text" class="text" value="${todo.item}" readonly />    
+    </div>
+    <div class="options">
+    <span id="undo"><i class="fas fa-undo"></i></span>
+    <span id="trash"><i class="fa fa-trash"></i></span>
+    </div>`
+  } else {
+    htmlTagLi.innerHTML = `
+    <div class="list">
+      <form>
+        <input type="text" class="text" value="${todo.item}" readonly />
+      </form>
+    </div>
+    <div class="options">
+      <span id="check"><i class="fa fa-check"></i></span>
+      <span id="edit"><i class="fa fa-edit"></i></span>
+      <span id="trash"><i class="fa fa-trash"></i></span>
+    </div>`
+  }
+
+  fragment.appendChild(htmlTagLi)
+  todoList.appendChild(fragment)
+}
+
+function listOptions(e) {
+  // Edit function
+  editOption(e)
+
+  // check if todo item is already done set to true
+  todoStatus(e)
+
+  // undo todoStatus function set to false
+  undoTodoStatus(e)
+
+  // undo todoStatus function set to false
+  trashOption(e)
+}
+
+function editOption(e) {
+  const editBtn = e.target.closest('#edit')
+
+  if (!editBtn) return
+  const htmlTagLi = e.target.closest('li')
+
+  const form = htmlTagLi.querySelector('form')
+  const input = htmlTagLi.querySelector('input')
+
+  editBtn.parentElement.classList.remove('options')
+  editBtn.parentElement.classList.add('none')
+
+  if (input.hasAttribute('readonly')) {
+    input.removeAttribute('readonly')
+    input.focus()
+    input.style.color = '#fca1a1'
+  }
+
+  form.addEventListener('submit', updateTodoItem)
+}
+
+function todoStatus(e) {
+  const checkBtn = e.target.closest('#check')
+
+  if (!checkBtn) return
+  const htmlTagLi = e.target.closest('li')
+  const input = htmlTagLi.querySelector('input')
+
+  const id = htmlTagLi.dataset.id
+  const index = todos.findIndex((todo) => todo.id === id)
+
+  // toggle status from false to true
+  todos[index].status = true
+
+  reRenderData()
+}
+
+function undoTodoStatus(e) {
+  const checkBtn = e.target.closest('#undo')
+
+  if (!checkBtn) return
+  const htmlTagLi = e.target.closest('li')
+  const id = htmlTagLi.dataset.id
+  const index = todos.findIndex((todo) => todo.id === id)
+
+  // toggle status from false to true
+  todos[index].status = false
+
+  reRenderData()
+}
+
+function trashOption(e) {
+  const trash = e.target.closest('#trash')
+
+  if (!trash) return
+  const htmlTagLi = e.target.closest('li')
+  htmlTagLi.classList.remove('bounceIn')
+  htmlTagLi.classList.add('bounceOutDown')
+
+  const id = htmlTagLi.dataset.id
+
+  todos = todos.filter((todo) => todo.id !== id)
+
+  localStorage.setItem('todos', JSON.stringify(todos))
+
+  setTimeout(() => {
+    htmlTagLi.remove()
+  }, 1000)
+}
+
+function updateTodoItem(e) {
+  e.preventDefault()
+  const htmlTagLi = this.closest('li')
+  const input = htmlTagLi.querySelector('input')
+  const options = htmlTagLi.querySelector('.none')
+
+  options.classList.remove('none')
+  options.classList.add('options')
+
+  input.setAttribute('readonly', '')
+  input.style.color = 'white'
+
+  const id = htmlTagLi.dataset.id
+  const index = todos.findIndex((todo) => todo.id === id)
+  todos[index].item = input.value
+
+  localStorage.setItem('todos', JSON.stringify(todos))
+}
+
+function uiRenderMessage(msg, cls) {
   const spanEl = document.createElement('span')
   spanEl.textContent = msg
   spanEl.classList = cls
@@ -42,74 +189,31 @@ function uiConfirmMessage(msg, cls) {
   }, 1000)
 }
 
-function uiDisplayTodoItem(todo, status) {
-  const li = document.createElement('li')
-  li.classList.add('bounceIn')
-
-  if (status) {
-    li.classList = 'checked'
-    li.innerHTML = `<span class="text">${todo}</span>
-  <div class="options">
-    <span id="undo"><i class="fas fa-undo"></i></span>
-    <span id="trash"><i class="fa fa-trash"></i></span>
-  </div>`
-  } else {
-    li.innerHTML = `<span class="text">${todo}</span>
-    <div class="options">
-      <span id="check"><i class="fa fa-check"></i></span>
-      <span id="edit"><i class="fa fa-edit"></i></span>
-      <span id="trash"><i class="fa fa-trash"></i></span>
-    </div>`
+function reRenderData() {
+  // delete every first element in UL element
+  while (todoList.firstChild) {
+    todoList.removeChild(todoList.firstChild)
   }
-  fragment.appendChild(li)
-  todoList.appendChild(fragment)
-}
 
-function listOptions(e) {
-  let item = e.target
+  // rerender UI
+  loadTodosFromStorage()
 
-  if (item.classList.contains('fa-trash') || item.id === 'trash') {
-    uiDeleteToDoItem(item)
-  } else if (item.classList.contains('fa-check') || item.id === 'check') {
-    uiDoneToDoItem(item)
-  } else if (item.classList.contains('fa-undo') || item.id === 'undo') {
-    uiUndoTodoItem(item)
-  }
-}
+  // remove bounceIn class in every li
+  let chectLi = Array.from(todoList.children)
+  chectLi.forEach((li) => {
+    li.classList.remove('bounceIn')
+  })
 
-function uiDeleteToDoItem(item) {
-  const todoItemEl = item.closest('li')
-  todoItemEl.classList.remove('bounceIn')
-  todoItemEl.classList.add('bounceOutDown')
-  setTimeout(() => {
-    todoItemEl.remove()
-  }, 1000)
-
-  item = item.closest('li').firstChild.textContent
-
-  // todos.forEach((todo, idx) => {
-  //   if (todo === item) {
-  //     todos.splice(idx, 1)
-  //   }
-  // })
-  // delete from localstorage
-  todos = todos.filter(({ todo }) => item !== todo)
-
+  // update date from localstorage
   localStorage.setItem('todos', JSON.stringify(todos))
 }
 
-function uiDoneToDoItem(item) {
-  const todoItemEl = item.closest('li')
-  todoItemEl.classList.add('checked')
-  item = item.closest('li').firstChild.textContent
-  doneToDoItemToLocalStorage(item)
-}
-
-function uiUndoTodoItem(item) {
-  const todoItemEl = item.closest('li')
-  todoItemEl.classList.remove('checked')
-  item = item.closest('li').firstChild.textContent
-  undoToDoItemToLocalStorage(item)
+function loadTodosFromStorage() {
+  if (todos.length === 0) {
+    todoList.innerHTML = '<p class="empty_message">Todos will go here</p>'
+  } else {
+    todos.map((todo) => uiRenderTodos(todo))
+  }
 }
 
 // setup date to insert to localstorage
@@ -124,58 +228,12 @@ function storeToLocalStorage() {
   return todos
 }
 
-// Load data from localstorage when the page loads
-function loadTodosFromStorage() {
-  todos.forEach(({ todo, status }) => {
-    uiDisplayTodoItem(todo, status)
-  })
-}
-
-// add todo into the localstorage
-function addToLocalStorage(todo) {
-  todos.push({ id: todos.length + 1, todo, status: false })
-
-  localStorage.setItem('todos', JSON.stringify(todos))
-}
-
-//
-function doneToDoItemToLocalStorage(item) {
-  // turn status to true
-  todos.forEach((todo) => {
-    if (todo.todo === item) {
-      todo.status = true
-    }
-  })
-
-  rerenderData()
-}
-
-function undoToDoItemToLocalStorage(item) {
-  // turn status to false
-  todos.forEach((todo) => {
-    if (todo.todo === item) {
-      todo.status = false
-    }
-  })
-
-  rerenderData()
-}
-
-function rerenderData() {
-  // delete every first element in UL element
-  while (todoList.firstChild) {
-    todoList.removeChild(todoList.firstChild)
+//taken from the internet
+function randomId() {
+  const s4 = () => {
+    return Math.floor(1 + Math.random() * 0x10000)
+      .toString(16)
+      .substring(1)
   }
-
-  // rerender UI
-  loadTodosFromStorage()
-
-  // remove bounceIn class in every li
-  let chectLi = Array.from(todoList.children)
-  chectLi.forEach((li) => {
-    console.log(li.classList.remove('bounceIn'))
-  })
-
-  // update status to true in local storage
-  localStorage.setItem('todos', JSON.stringify(todos))
+  return `${s4()}-${s4()}`
 }
