@@ -1,3 +1,5 @@
+'use strict'
+
 const todoForm = document.getElementById('form')
 const todoInput = document.getElementById('todoInput')
 const todoList = document.querySelector('.todo__list')
@@ -10,7 +12,7 @@ eventListener()
 function eventListener() {
   document.addEventListener('DOMContentLoaded', loadTodosFromStorage)
 
-  form.addEventListener('submit', submitTodos)
+  todoForm.addEventListener('submit', submitTodos)
   todoList.addEventListener('click', listOptions)
 }
 
