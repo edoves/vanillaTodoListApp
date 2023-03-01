@@ -1,5 +1,3 @@
-'use strict'
-
 const todoForm = document.getElementById('form')
 const todoInput = document.getElementById('todoInput')
 const todoList = document.querySelector('.todo__list')

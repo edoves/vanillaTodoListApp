@@ -1,3 +1,5 @@
+'use strict'
+
 let todaysDay = document.getElementById('todaysDay')
 let todaysDate = document.getElementById('todaysDate')
 
