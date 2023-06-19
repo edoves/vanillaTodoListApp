@@ -53,8 +53,8 @@ function uiRenderTodos(todo) {
         <input type="text" class="text" value="${todo.item}" readonly />    
     </div>
     <div class="options">
-    <span id="undo"><i class="fas fa-undo"></i></span>
-    <span id="trash"><i class="fa fa-trash"></i></span>
+    <span id="undo" title="Undo"><i class="fas fa-undo"></i></span>
+    <span id="trash" title="Delete"><i class="fa fa-trash"></i></span>
     </div>`
   } else {
     htmlTagLi.innerHTML = `
@@ -64,9 +64,9 @@ function uiRenderTodos(todo) {
       </form>
     </div>
     <div class="options">
-      <span id="check"><i class="fa fa-check"></i></span>
-      <span id="edit"><i class="fa fa-edit"></i></span>
-      <span id="trash"><i class="fa fa-trash"></i></span>
+      <span id="check" title="Done"><i class="fa fa-check"></i></span>
+      <span id="edit" title="Edit"><i class="fa fa-edit"></i></span>
+      <span id="trash" title="Delete"><i class="fa fa-trash"></i></span>
     </div>`
   }
 
@@ -75,27 +75,42 @@ function uiRenderTodos(todo) {
 }
 
 function listOptions(e) {
-  // Edit function
-  editOption(e)
-
   // check if todo item is already done set to true
   todoStatus(e)
 
-  // undo todoStatus function set to false
-  undoTodoStatus(e)
+  // Edit function
+  editTodo(e)
 
   // undo todoStatus function set to false
-  trashOption(e)
+  delelteTodo(e)
+
+  // undo todoStatus function set to false
+  undoTodo(e)
 }
 
-function editOption(e) {
+function todoStatus(e) {
+  const checkBtn = e.target.closest('#check')
+
+  if (!checkBtn) return
+  const htmlTagLi = e.target.closest('li')
+
+  const id = htmlTagLi.dataset.id
+  const index = todos.findIndex((todo) => todo.id === id)
+
+  // toggle status from false to true
+  todos[index].status = true
+
+  reRenderData()
+}
+
+function editTodo(e) {
   const editBtn = e.target.closest('#edit')
 
   if (!editBtn) return
   const htmlTagLi = e.target.closest('li')
 
   const form = htmlTagLi.querySelector('form')
-  const input = htmlTagLi.querySelector('input')
+  const input = form.querySelector('input')
 
   editBtn.parentElement.classList.remove('options')
   editBtn.parentElement.classList.add('none')
@@ -109,37 +124,7 @@ function editOption(e) {
   form.addEventListener('submit', updateTodoItem)
 }
 
-function todoStatus(e) {
-  const checkBtn = e.target.closest('#check')
-
-  if (!checkBtn) return
-  const htmlTagLi = e.target.closest('li')
-  const input = htmlTagLi.querySelector('input')
-
-  const id = htmlTagLi.dataset.id
-  const index = todos.findIndex((todo) => todo.id === id)
-
-  // toggle status from false to true
-  todos[index].status = true
-
-  reRenderData()
-}
-
-function undoTodoStatus(e) {
-  const checkBtn = e.target.closest('#undo')
-
-  if (!checkBtn) return
-  const htmlTagLi = e.target.closest('li')
-  const id = htmlTagLi.dataset.id
-  const index = todos.findIndex((todo) => todo.id === id)
-
-  // toggle status from false to true
-  todos[index].status = false
-
-  reRenderData()
-}
-
-function trashOption(e) {
+function delelteTodo(e) {
   const trash = e.target.closest('#trash')
 
   if (!trash) return
@@ -155,7 +140,22 @@ function trashOption(e) {
 
   setTimeout(() => {
     htmlTagLi.remove()
+    if (todos.length === 0) todoList.innerHTML = '<p class="empty_message">Todos will go here</p>'
   }, 1000)
+}
+
+function undoTodo(e) {
+  const checkBtn = e.target.closest('#undo')
+
+  if (!checkBtn) return
+  const htmlTagLi = e.target.closest('li')
+  const id = htmlTagLi.dataset.id
+  const index = todos.findIndex((todo) => todo.id === id)
+
+  // toggle status from false to true
+  todos[index].status = false
+
+  reRenderData()
 }
 
 function updateTodoItem(e) {
