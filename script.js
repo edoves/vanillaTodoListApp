@@ -2,9 +2,19 @@ const todoForm = document.getElementById('form')
 const todoInput = document.getElementById('todoInput')
 const todoList = document.querySelector('.todo__list')
 
+const clearAllBtn = document.getElementById('clear')
+
 const fragment = document.createDocumentFragment()
 
 let todos = storeToLocalStorage()
+
+if (todos.length > 0) {
+  clearAllBtn.classList.add('show')
+  todoForm.parentElement.style.paddingBottom = 0
+} else {
+  clearAllBtn.classList.remove('show')
+  todoForm.parentElement.style.paddingBottom = '40px'
+}
 
 eventListener()
 function eventListener() {
@@ -12,6 +22,21 @@ function eventListener() {
 
   todoForm.addEventListener('submit', submitTodos)
   todoList.addEventListener('click', listOptions)
+
+  clearAllBtn.addEventListener('click', clearAll)
+}
+
+function clearAll() {
+  clearFirstElelementUi()
+
+  todos = []
+  localStorage.setItem('todos', JSON.stringify(todos))
+
+  if (todos.length === 0) {
+    clearAllBtn.classList.remove('show')
+    todoForm.parentElement.style.paddingBottom = '40px'
+    todoList.innerHTML = '<p class="empty_message">Todos will go here</p>'
+  }
 }
 
 function submitTodos(e) {
@@ -30,7 +55,11 @@ function submitTodos(e) {
 
     uiRenderMessage('Todos added', 'alert alert-success')
 
-    if (todos.length === 1) todoList.innerHTML = ''
+    if (todos.length === 1) {
+      todoList.innerHTML = ''
+      clearAllBtn.classList.add('show')
+      todoForm.parentElement.style.paddingBottom = 0
+    }
 
     uiRenderTodos(todo)
 
@@ -140,7 +169,11 @@ function delelteTodo(e) {
 
   setTimeout(() => {
     htmlTagLi.remove()
-    if (todos.length === 0) todoList.innerHTML = '<p class="empty_message">Todos will go here</p>'
+    if (todos.length === 0) {
+      todoList.innerHTML = '<p class="empty_message">Todos will go here</p>'
+      clearAllBtn.classList.remove('show')
+      todoForm.parentElement.style.paddingBottom = '40px'
+    }
   }, 1000)
 }
 
@@ -191,9 +224,7 @@ function uiRenderMessage(msg, cls) {
 
 function reRenderData() {
   // delete every first element in UL element
-  while (todoList.firstChild) {
-    todoList.removeChild(todoList.firstChild)
-  }
+  clearFirstElelementUi()
 
   // rerender UI
   loadTodosFromStorage()
@@ -236,4 +267,10 @@ function randomId() {
       .substring(1)
   }
   return `${s4()}-${s4()}`
+}
+
+function clearFirstElelementUi() {
+  while (todoList.firstChild) {
+    todoList.removeChild(todoList.firstChild)
+  }
 }
